@@ -1,0 +1,30 @@
+<odoo>
+    <record id="department_general" model="hospital.department">
+        <field name="name">General Medicine</field>
+        <field name="code">GEN</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="department_cardiology" model="hospital.department">
+        <field name="name">Cardiology</field>
+        <field name="code">CARD</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="department_pediatrics" model="hospital.department">
+        <field name="name">Pediatrics</field>
+        <field name="code">PED</field>
+        <field name="sequence">3</field>
+    </record>
+
+    <record id="tag_emergency" model="hospital.patient.tag">
+        <field name="name">Emergency</field>
+        <field name="color">1</field>
+    </record>
+    <record id="tag_child" model="hospital.patient.tag">
+        <field name="name">Child</field>
+        <field name="color">2</field>
+    </record>
+    <record id="tag_diabetic" model="hospital.patient.tag">
+        <field name="name">Diabetic</field>
+        <field name="color">3</field>
+    </record>
+</odoo>

@@ -1,0 +1,194 @@
+<odoo>
+    <record id="view_hospital_patient_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.tree</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="state == 'cancelled'" decoration-success="state == 'discharged'" decoration-warning="is_child == True">
+                <field name="reference"/>
+                <field name="name"/>
+                <field name="age"/>
+                <field name="age_group"/>
+                <field name="gender"/>
+                <field name="doctor_id"/>
+                <field name="appointment_count"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_form" model="ir.ui.view">
+        <field name="name">hospital.patient.form</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <form string="Patient">
+                <header>
+                    <button name="action_register" string="Register" type="object" class="oe_highlight" states="draft"/>
+                    <button name="action_admit" string="Admit" type="object" class="oe_highlight" states="registered"/>
+                    <button name="action_discharge" string="Discharge" type="object" class="oe_highlight" states="admitted"/>
+                    <button name="action_cancel" string="Cancel" type="object" states="draft,registered,admitted"/>
+                    <button name="action_set_draft" string="Reset to Draft" type="object" states="cancelled"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,registered,admitted,discharged"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_appointments" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="appointment_count" widget="statinfo" string="Appointments"/>
+                        </button>
+                        <button name="action_demo_orm_pipeline" type="object" class="oe_stat_button" icon="fa-cogs" groups="om_hospital_training.group_hospital_manager">
+                            <div class="o_stat_info"><span class="o_stat_text">ORM Demo</span></div>
+                        </button>
+                    </div>
+                    <h1><field name="reference" readonly="1"/></h1>
+                    <group>
+                        <group string="Basic Information">
+                            <field name="name"/>
+                            <field name="date_of_birth"/>
+                            <field name="estimated_birth_year" attrs="{'invisible': [('date_of_birth','!=',False)]}"/>
+                            <field name="age"/>
+                            <field name="age_group" readonly="1"/>
+                            <field name="is_child" readonly="1"/>
+                            <field name="guardian_name" attrs="{'required': [('is_child','=',True)], 'invisible': [('is_child','=',False)]}"/>
+                        </group>
+                        <group string="Contact and Assignment">
+                            <field name="gender"/>
+                            <field name="blood_group"/>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                            <field name="emergency_contact"/>
+                            <field name="doctor_id" options="{'no_create': True}"/>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Medical">
+                            <group>
+                                <field name="tag_ids" widget="many2many_tags" options="{'color_field':'color'}"/>
+                                <field name="medical_history"/>
+                                <field name="note"/>
+                            </group>
+                        </page>
+                        <page string="Appointments">
+                            <field name="appointment_ids" context="{'default_patient_id': active_id}">
+                                <tree editable="bottom">
+                                    <field name="reference" readonly="1"/>
+                                    <field name="doctor_id"/>
+                                    <field name="appointment_date"/>
+                                    <field name="duration_hours"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Insurance Extension Demo">
+                            <group>
+                                <field name="insurance_required"/>
+                                <field name="insurance_policy_no" attrs="{'required': [('insurance_required','=',True)], 'invisible': [('insurance_required','=',False)]}"/>
+                                <field name="age_restricted"/>
+                                <field name="total_prescription_qty" readonly="1"/>
+                                <field name="last_appointment_date" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Consent HTML">
+                            <field name="consent_html"/>
+                            <field name="patient_photo" widget="image"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_search" model="ir.ui.view">
+        <field name="name">hospital.patient.search</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <search string="Search Patients">
+                <field name="name" filter_domain="['|','|', ('name','ilike',self), ('reference','ilike',self), ('mobile','ilike',self)]"/>
+                <field name="doctor_id"/>
+                <field name="tag_ids"/>
+                <filter string="My Patients" name="my_patients" domain="[('user_id','=',uid)]"/>
+                <filter string="Children" name="children" domain="[('is_child','=',True)]"/>
+                <filter string="Admitted" name="admitted" domain="[('state','=','admitted')]"/>
+                <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="State" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Doctor" name="group_doctor" context="{'group_by':'doctor_id'}"/>
+                    <filter string="Gender" name="group_gender" context="{'group_by':'gender'}"/>
+                    <filter string="Age Group" name="group_age_group" context="{'group_by':'age_group'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_kanban" model="ir.ui.view">
+        <field name="name">hospital.patient.kanban</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="reference"/>
+                <field name="name"/>
+                <field name="age"/>
+                <field name="doctor_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record">
+                            <strong><field name="reference"/> - <field name="name"/></strong>
+                            <div>Age: <field name="age"/></div>
+                            <div>Doctor: <field name="doctor_id"/></div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_graph" model="ir.ui.view">
+        <field name="name">hospital.patient.graph</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <graph string="Patients by Age Group" type="bar">
+                <field name="age_group" type="row"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_hospital_patient_pivot" model="ir.ui.view">
+        <field name="name">hospital.patient.pivot</field>
+        <field name="model">hospital.patient</field>
+        <field name="arch" type="xml">
+            <pivot string="Patient Analysis">
+                <field name="doctor_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="id" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_hospital_patient" model="ir.actions.act_window">
+        <field name="name">Patients</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="view_mode">tree,kanban,form,graph,pivot</field>
+        <field name="search_view_id" ref="view_hospital_patient_search"/>
+        <field name="context">{'search_default_my_patients': 1}</field>
+    </record>
+
+    <record id="action_bulk_assign_doctor_wizard" model="ir.actions.act_window">
+        <field name="name">Assign Doctor in Bulk</field>
+        <field name="res_model">hospital.bulk.assign.doctor.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_bulk_assign_doctor_wizard_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_hospital_patient"/>
+        <field name="binding_type">action</field>
+    </record>
+
+    <menuitem id="menu_hospital_patient" name="Patients" parent="menu_hospital_operations" action="action_hospital_patient" sequence="10"/>
+</odoo>

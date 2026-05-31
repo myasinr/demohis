@@ -1,0 +1,71 @@
+<odoo>
+    <record id="view_hospital_doctor_tree" model="ir.ui.view">
+        <field name="name">hospital.doctor.tree</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="active == False">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="specialization"/>
+                <field name="mobile"/>
+                <field name="appointment_count"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_hospital_doctor_form" model="ir.ui.view">
+        <field name="name">hospital.doctor.form</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <form string="Doctor">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_appointments" type="object" class="oe_stat_button" icon="fa-calendar">
+                            <field name="appointment_count" widget="statinfo" string="Appointments"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="department_id"/>
+                            <field name="specialization"/>
+                        </group>
+                        <group>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="view_hospital_doctor_search" model="ir.ui.view">
+        <field name="name">hospital.doctor.search</field>
+        <field name="model">hospital.doctor</field>
+        <field name="arch" type="xml">
+            <search string="Search Doctors">
+                <field name="name" filter_domain="['|', ('name','ilike',self), ('code','ilike',self)]"/>
+                <field name="department_id"/>
+                <filter string="Active" name="active" domain="[('active','=',True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Department" name="group_department" context="{'group_by':'department_id'}"/>
+                    <filter string="Specialization" name="group_specialization" context="{'group_by':'specialization'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_hospital_doctor" model="ir.actions.act_window">
+        <field name="name">Doctors</field>
+        <field name="res_model">hospital.doctor</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_hospital_doctor_search"/>
+    </record>
+    <menuitem id="menu_hospital_doctor" name="Doctors" parent="menu_hospital_configuration" action="action_hospital_doctor" sequence="30"/>
+</odoo>

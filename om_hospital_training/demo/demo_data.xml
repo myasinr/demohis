@@ -1,0 +1,47 @@
+<odoo>
+    <record id="doctor_ali" model="hospital.doctor">
+        <field name="name">Dr. Ali Ahmed</field>
+        <field name="department_id" ref="department_general"/>
+        <field name="specialization">general</field>
+        <field name="mobile">03000000001</field>
+        <field name="email">ali@example.com</field>
+    </record>
+    <record id="doctor_sara" model="hospital.doctor">
+        <field name="name">Dr. Sara Khan</field>
+        <field name="department_id" ref="department_pediatrics"/>
+        <field name="specialization">pediatrics</field>
+        <field name="mobile">03000000002</field>
+        <field name="email">sara@example.com</field>
+    </record>
+    <record id="patient_ahmad" model="hospital.patient">
+        <field name="name">Ahmad Raza</field>
+        <field name="mobile">03111111111</field>
+        <field name="email">ahmad@example.com</field>
+        <field name="gender">male</field>
+        <field name="estimated_birth_year">1995</field>
+        <field name="doctor_id" ref="doctor_ali"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_diabetic')])]"/>
+    </record>
+    <record id="patient_child" model="hospital.patient">
+        <field name="name">Fatima Noor</field>
+        <field name="mobile">03222222222</field>
+        <field name="gender">female</field>
+        <field name="estimated_birth_year">2018</field>
+        <field name="guardian_name">Muhammad Noor</field>
+        <field name="doctor_id" ref="doctor_sara"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_child')])]"/>
+    </record>
+    <record id="appointment_demo_1" model="hospital.appointment">
+        <field name="patient_id" ref="patient_ahmad"/>
+        <field name="doctor_id" ref="doctor_ali"/>
+        <field name="appointment_date">2026-06-01</field>
+        <field name="reason">Routine checkup</field>
+        <field name="state">confirmed</field>
+    </record>
+    <record id="appointment_demo_1_line_1" model="hospital.appointment.line">
+        <field name="appointment_id" ref="appointment_demo_1"/>
+        <field name="name">Consultation Fee</field>
+        <field name="quantity">1</field>
+        <field name="unit_price">1500</field>
+    </record>
+</odoo>

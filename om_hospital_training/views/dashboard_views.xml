@@ -1,0 +1,14 @@
+<odoo>
+    <record id="action_hospital_patient_analysis" model="ir.actions.act_window">
+        <field name="name">Patient Analysis</field>
+        <field name="res_model">hospital.patient</field>
+        <field name="view_mode">graph,pivot,tree</field>
+    </record>
+    <record id="action_hospital_appointment_analysis" model="ir.actions.act_window">
+        <field name="name">Appointment Analysis</field>
+        <field name="res_model">hospital.appointment</field>
+        <field name="view_mode">graph,pivot,tree</field>
+    </record>
+    <menuitem id="menu_hospital_patient_analysis" name="Patient Analysis" parent="menu_hospital_reports" action="action_hospital_patient_analysis" sequence="10"/>
+    <menuitem id="menu_hospital_appointment_analysis" name="Appointment Analysis" parent="menu_hospital_reports" action="action_hospital_appointment_analysis" sequence="20"/>
+</odoo>
