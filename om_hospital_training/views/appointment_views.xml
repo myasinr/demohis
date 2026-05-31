@@ -3,17 +3,15 @@
         <field name="name">hospital.appointment.tree</field>
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
-            <tree decoration-success="state == 'done'" decoration-danger="state == 'cancelled'" decoration-warning="priority in ('2','3')">
+            <tree decoration-success="state == 'done'" decoration-danger="state == 'cancelled'" decoration-info="state == 'confirmed'">
+                <field name="state" invisible="1"/>
                 <field name="reference"/>
                 <field name="patient_id"/>
                 <field name="doctor_id"/>
-                <field name="department_id"/>
                 <field name="appointment_date"/>
                 <field name="duration_hours"/>
-                <field name="priority"/>
                 <field name="total_quantity"/>
                 <field name="total_amount"/>
-                <field name="state"/>
             </tree>
         </field>
     </record>
@@ -28,46 +26,43 @@
                     <button name="action_start" string="Start" type="object" class="oe_highlight" states="confirmed"/>
                     <button name="action_done" string="Done" type="object" class="oe_highlight" states="ongoing"/>
                     <button name="action_cancel" string="Cancel" type="object" states="draft,confirmed,ongoing"/>
-                    <button name="action_reset_draft" string="Reset" type="object" states="cancelled"/>
+                    <button name="action_set_draft" string="Reset Draft" type="object" states="cancelled"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,ongoing,done"/>
                 </header>
                 <sheet>
                     <h1><field name="reference" readonly="1"/></h1>
                     <group>
-                        <group string="Core Data">
+                        <group>
                             <field name="patient_id" options="{'no_create': True}"/>
                             <field name="doctor_id" options="{'no_create': True}"/>
-                            <field name="department_id" readonly="1"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                        </group>
-                        <group string="Schedule">
                             <field name="appointment_date"/>
-                            <field name="appointment_datetime"/>
+                            <field name="appointment_end"/>
                             <field name="duration_hours"/>
-                            <field name="priority" widget="priority"/>
+                        </group>
+                        <group>
+                            <field name="total_quantity" readonly="1"/>
+                            <field name="total_amount" readonly="1"/>
                             <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Prescription Lines">
                             <field name="line_ids">
                                 <tree editable="bottom">
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="name"/>
+                                    <field name="medicine_id"/>
                                     <field name="quantity"/>
-                                    <field name="unit_price"/>
+                                    <field name="price_unit"/>
                                     <field name="subtotal" readonly="1"/>
                                     <field name="note"/>
                                 </tree>
                             </field>
-                            <group class="oe_subtotal_footer oe_right">
-                                <field name="total_quantity" readonly="1"/>
-                                <field name="total_amount" readonly="1"/>
-                            </group>
+                        </page>
+                        <page string="Diagnosis">
+                            <field name="diagnosis"/>
                         </page>
                         <page string="Notes">
-                            <field name="reason" placeholder="Reason for appointment..."/>
-                            <field name="diagnosis" placeholder="Diagnosis visible for doctors/managers only..."/>
+                            <field name="notes"/>
                         </page>
                     </notebook>
                 </sheet>
@@ -88,16 +83,15 @@
                 <field name="reference"/>
                 <field name="patient_id"/>
                 <field name="doctor_id"/>
-                <field name="department_id"/>
-                <filter string="Today" name="today" domain="[('appointment_date','=',context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('state','=','confirmed')]"/>
                 <filter string="Done" name="done" domain="[('state','=','done')]"/>
                 <separator/>
                 <group expand="0" string="Group By">
                     <filter string="State" name="group_state" context="{'group_by':'state'}"/>
                     <filter string="Doctor" name="group_doctor" context="{'group_by':'doctor_id'}"/>
-                    <filter string="Department" name="group_department" context="{'group_by':'department_id'}"/>
-                    <filter string="Appointment Date" name="group_date" context="{'group_by':'appointment_date'}"/>
+                    <filter string="Patient" name="group_patient" context="{'group_by':'patient_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by':'appointment_date:day'}"/>
                 </group>
             </search>
         </field>
@@ -107,11 +101,10 @@
         <field name="name">hospital.appointment.calendar</field>
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
-            <calendar string="Appointment Calendar" date_start="appointment_datetime" date_delay="duration_hours" color="doctor_id">
+            <calendar string="Appointments" date_start="appointment_date" date_stop="appointment_end" color="doctor_id">
                 <field name="reference"/>
                 <field name="patient_id"/>
                 <field name="doctor_id"/>
-                <field name="state"/>
             </calendar>
         </field>
     </record>
@@ -120,20 +113,19 @@
         <field name="name">hospital.appointment.kanban</field>
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
-            <kanban default_group_by="state" class="o_kanban_small_column">
+            <kanban default_group_by="state">
+                <field name="state"/>
                 <field name="reference"/>
                 <field name="patient_id"/>
                 <field name="doctor_id"/>
                 <field name="appointment_date"/>
-                <field name="priority"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_global_click o_kanban_record">
-                            <div><strong><field name="reference"/></strong></div>
+                            <strong><field name="reference"/></strong>
                             <div>Patient: <field name="patient_id"/></div>
                             <div>Doctor: <field name="doctor_id"/></div>
                             <div>Date: <field name="appointment_date"/></div>
-                            <div>Priority: <field name="priority"/></div>
                         </div>
                     </t>
                 </templates>
@@ -145,9 +137,9 @@
         <field name="name">hospital.appointment.graph</field>
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
-            <graph string="Appointments Analysis" type="bar">
+            <graph string="Appointments by Doctor" type="bar">
                 <field name="doctor_id" type="row"/>
-                <field name="total_amount" type="measure"/>
+                <field name="id" type="measure"/>
             </graph>
         </field>
     </record>
@@ -156,11 +148,10 @@
         <field name="name">hospital.appointment.pivot</field>
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
-            <pivot string="Appointment Pivot">
+            <pivot string="Appointment Analysis">
                 <field name="doctor_id" type="row"/>
-                <field name="appointment_date" type="col" interval="month"/>
+                <field name="state" type="col"/>
                 <field name="total_amount" type="measure"/>
-                <field name="total_quantity" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -171,6 +162,5 @@
         <field name="view_mode">tree,kanban,form,calendar,graph,pivot</field>
         <field name="search_view_id" ref="view_hospital_appointment_search"/>
     </record>
-
     <menuitem id="menu_hospital_appointment" name="Appointments" parent="menu_hospital_operations" action="action_hospital_appointment" sequence="20"/>
 </odoo>

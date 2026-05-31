@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models, _
+from odoo import fields, models, _
 from odoo.exceptions import UserError
 
 
@@ -8,21 +8,14 @@ class HospitalBulkAssignDoctorWizard(models.TransientModel):
     _description = 'Bulk Assign Doctor Wizard'
 
     doctor_id = fields.Many2one('hospital.doctor', required=True)
-    note = fields.Text(string='Internal Note')
-    patient_count = fields.Integer(compute='_compute_patient_count')
-
-    def _compute_patient_count(self):
-        active_ids = self.env.context.get('active_ids') or []
-        for rec in self:
-            rec.patient_count = len(active_ids)
+    remarks = fields.Text()
 
     def action_assign_doctor(self):
-        active_ids = self.env.context.get('active_ids') or []
-        if not active_ids:
+        active_ids = self.env.context.get('active_ids', [])
+        patients = self.env['hospital.patient'].browse(active_ids)
+        if not patients:
             raise UserError(_('Please select at least one patient.'))
-        patients = self.env['hospital.patient'].browse(active_ids).exists()
-        for wizard in self:
-            patients.write({'doctor_id': wizard.doctor_id.id})
-            if wizard.note:
-                patients.message_post(body=_('Doctor assigned through wizard: %s<br/>Note: %s') % (wizard.doctor_id.name, wizard.note))
+        patients.write({'doctor_id': self.doctor_id.id})
+        for patient in patients:
+            patient.message_post(body=_('Doctor assigned in bulk: %s') % self.doctor_id.name)
         return {'type': 'ir.actions.act_window_close'}

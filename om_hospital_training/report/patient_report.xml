@@ -1,13 +1,11 @@
 <odoo>
-    <report
-        id="action_report_hospital_patient"
-        string="Patient Registration Form"
-        model="hospital.patient"
-        report_type="qweb-pdf"
-        name="om_hospital_training.report_hospital_patient_document"
-        file="om_hospital_training.report_hospital_patient_document"
-        print_report_name="'Patient - %s' % (object.reference)"
-    />
+    <report id="action_report_hospital_patient"
+            model="hospital.patient"
+            string="Patient Registration Form"
+            report_type="qweb-pdf"
+            name="om_hospital_training.report_hospital_patient_document"
+            file="om_hospital_training.report_hospital_patient_document"
+            print_report_name="'Patient - %s' % (object.reference)"/>
 
     <template id="report_hospital_patient_document">
         <t t-call="web.html_container">
@@ -16,19 +14,14 @@
                     <div class="page">
                         <h2>Patient Registration Form</h2>
                         <table class="table table-sm">
-                            <tr><th>Patient ID</th><td><span t-field="doc.reference"/></td></tr>
-                            <tr><th>Name</th><td><span t-field="doc.name"/></td></tr>
-                            <tr><th>Age</th><td><span t-field="doc.age"/></td></tr>
-                            <tr><th>Gender</th><td><span t-field="doc.gender"/></td></tr>
-                            <tr><th>Mobile</th><td><span t-field="doc.mobile"/></td></tr>
-                            <tr><th>Email</th><td><span t-field="doc.email"/></td></tr>
-                            <tr><th>Primary Doctor</th><td><span t-field="doc.doctor_id"/></td></tr>
-                            <tr><th>Status</th><td><span t-field="doc.state"/></td></tr>
+                            <tr><td><strong>Reference</strong></td><td><span t-field="doc.reference"/></td></tr>
+                            <tr><td><strong>Name</strong></td><td><span t-field="doc.name"/></td></tr>
+                            <tr><td><strong>Age</strong></td><td><span t-field="doc.age"/></td></tr>
+                            <tr><td><strong>Gender</strong></td><td><span t-field="doc.gender"/></td></tr>
+                            <tr><td><strong>Mobile</strong></td><td><span t-field="doc.mobile"/></td></tr>
+                            <tr><td><strong>Doctor</strong></td><td><span t-field="doc.doctor_id"/></td></tr>
+                            <tr><td><strong>Status</strong></td><td><span t-field="doc.state"/></td></tr>
                         </table>
-                        <h4>Tags / Diseases</h4>
-                        <ul>
-                            <li t-foreach="doc.tag_ids" t-as="tag"><span t-field="tag.name"/></li>
-                        </ul>
                         <h4>Notes</h4>
                         <p><span t-field="doc.note"/></p>
                     </div>

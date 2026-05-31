@@ -5,12 +5,11 @@
         <field name="arch" type="xml">
             <form string="Assign Doctor in Bulk">
                 <group>
-                    <field name="patient_count" readonly="1"/>
-                    <field name="doctor_id" options="{'no_create': True}"/>
-                    <field name="note"/>
+                    <field name="doctor_id"/>
+                    <field name="remarks"/>
                 </group>
                 <footer>
-                    <button name="action_assign_doctor" string="Assign Doctor" type="object" class="btn-primary"/>
+                    <button name="action_assign_doctor" string="Assign" type="object" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>

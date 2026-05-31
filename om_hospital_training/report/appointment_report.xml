@@ -1,0 +1,43 @@
+<odoo>
+    <report id="action_report_hospital_appointment"
+            model="hospital.appointment"
+            string="Appointment Slip"
+            report_type="qweb-pdf"
+            name="om_hospital_training.report_hospital_appointment_document"
+            file="om_hospital_training.report_hospital_appointment_document"
+            print_report_name="'Appointment - %s' % (object.reference)"/>
+
+    <template id="report_hospital_appointment_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Appointment Slip</h2>
+                        <table class="table table-sm">
+                            <tr><td><strong>Reference</strong></td><td><span t-field="doc.reference"/></td></tr>
+                            <tr><td><strong>Patient</strong></td><td><span t-field="doc.patient_id"/></td></tr>
+                            <tr><td><strong>Doctor</strong></td><td><span t-field="doc.doctor_id"/></td></tr>
+                            <tr><td><strong>Date</strong></td><td><span t-field="doc.appointment_date"/></td></tr>
+                            <tr><td><strong>Status</strong></td><td><span t-field="doc.state"/></td></tr>
+                        </table>
+                        <h4>Prescription</h4>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr><th>Medicine</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line">
+                                    <td><span t-field="line.medicine_id"/></td>
+                                    <td><span t-field="line.quantity"/></td>
+                                    <td><span t-field="line.price_unit"/></td>
+                                    <td><span t-field="line.subtotal"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p><strong>Total:</strong> <span t-field="doc.total_amount"/></p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

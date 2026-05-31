@@ -3,25 +3,25 @@ from odoo import http
 from odoo.http import request
 
 
-class HospitalApiController(http.Controller):
-    """Simple JSON controller for training integration concepts.
+class HospitalTrainingController(http.Controller):
 
-    Call with JSON-RPC style POST to /hospital/api/create_patient.
-    Example params: {"name": "Ali", "mobile": "03000000000", "email": "a@test.com"}
-    """
+    @http.route('/hospital/api/patients', type='json', auth='user', methods=['POST'], csrf=False)
+    def get_patients(self, **kwargs):
+        patients = request.env['hospital.patient'].search([], limit=20)
+        return [{
+            'id': p.id,
+            'reference': p.reference,
+            'name': p.name,
+            'age': p.age,
+            'state': p.state,
+        } for p in patients]
 
     @http.route('/hospital/api/create_patient', type='json', auth='user', methods=['POST'], csrf=False)
-    def create_patient(self, **payload):
+    def create_patient(self, **kwargs):
         vals = {
-            'name': payload.get('name'),
-            'mobile': payload.get('mobile'),
-            'email': payload.get('email'),
-            'gender': payload.get('gender'),
+            'name': kwargs.get('name') or 'API Patient',
+            'mobile': kwargs.get('mobile') or '0000000000',
+            'email': kwargs.get('email'),
         }
-        vals = {k: v for k, v in vals.items() if v}
-        patient = request.env['hospital.patient'].sudo().create(vals)
-        return {
-            'id': patient.id,
-            'reference': patient.reference,
-            'name': patient.name,
-        }
+        patient = request.env['hospital.patient'].create(vals)
+        return {'id': patient.id, 'reference': patient.reference, 'name': patient.name}

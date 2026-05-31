@@ -1,0 +1,79 @@
+<odoo>
+    <record id="view_hospital_vip_patient_tree" model="ir.ui.view">
+        <field name="name">hospital.vip.patient.tree</field>
+        <field name="model">hospital.vip.patient</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="reference"/>
+                <field name="name"/>
+                <field name="vip_level"/>
+                <field name="mobile"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_hospital_vip_patient_form" model="ir.ui.view">
+        <field name="name">hospital.vip.patient.form</field>
+        <field name="model">hospital.vip.patient</field>
+        <field name="arch" type="xml">
+            <form string="VIP Patient">
+                <sheet>
+                    <h1><field name="reference" readonly="1"/></h1>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                        </group>
+                        <group>
+                            <field name="vip_level"/>
+                            <field name="vip_notes"/>
+                            <field name="tag_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_hospital_vip_patient" model="ir.actions.act_window">
+        <field name="name">VIP Patients</field>
+        <field name="res_model">hospital.vip.patient</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_hospital_vip_patient" name="VIP Patients Demo" parent="menu_hospital_configuration" action="action_hospital_vip_patient" sequence="80"/>
+
+    <record id="view_hospital_patient_profile_tree" model="ir.ui.view">
+        <field name="name">hospital.patient.profile.tree</field>
+        <field name="model">hospital.patient.profile</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="profile_code"/>
+                <field name="patient_id"/>
+                <field name="name"/>
+                <field name="mobile"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_hospital_patient_profile_form" model="ir.ui.view">
+        <field name="name">hospital.patient.profile.form</field>
+        <field name="model">hospital.patient.profile</field>
+        <field name="arch" type="xml">
+            <form string="Patient Profile Delegation">
+                <sheet>
+                    <group>
+                        <field name="profile_code"/>
+                        <field name="patient_id"/>
+                        <field name="name"/>
+                        <field name="mobile"/>
+                        <field name="profile_notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_hospital_patient_profile" model="ir.actions.act_window">
+        <field name="name">Patient Profiles</field>
+        <field name="res_model">hospital.patient.profile</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_hospital_patient_profile" name="Delegation Profiles Demo" parent="menu_hospital_configuration" action="action_hospital_patient_profile" sequence="90"/>
+</odoo>

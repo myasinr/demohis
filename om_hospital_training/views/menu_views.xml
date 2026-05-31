@@ -1,0 +1,6 @@
+<odoo>
+    <menuitem id="menu_hospital_root" name="Hospital Training" sequence="10" groups="om_hospital_training.group_hospital_receptionist" web_icon="om_hospital_training,static/description/icon.png"/>
+    <menuitem id="menu_hospital_operations" name="Operations" parent="menu_hospital_root" sequence="10"/>
+    <menuitem id="menu_hospital_reporting" name="Reporting" parent="menu_hospital_root" sequence="20"/>
+    <menuitem id="menu_hospital_configuration" name="Configuration" parent="menu_hospital_root" sequence="90" groups="om_hospital_training.group_hospital_manager"/>
+</odoo>

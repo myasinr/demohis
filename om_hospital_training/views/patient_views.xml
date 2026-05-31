@@ -3,15 +3,16 @@
         <field name="name">hospital.patient.tree</field>
         <field name="model">hospital.patient</field>
         <field name="arch" type="xml">
-            <tree decoration-danger="state == 'cancelled'" decoration-success="state == 'discharged'" decoration-warning="is_child == True">
+            <tree decoration-danger="state == 'cancelled'" decoration-success="state == 'discharged'" decoration-warning="is_child">
+                <field name="is_child" invisible="1"/>
                 <field name="reference"/>
                 <field name="name"/>
                 <field name="age"/>
                 <field name="age_group"/>
                 <field name="gender"/>
+                <field name="state"/>
                 <field name="doctor_id"/>
                 <field name="appointment_count"/>
-                <field name="state"/>
             </tree>
         </field>
     </record>
@@ -70,7 +71,7 @@
                             </group>
                         </page>
                         <page string="Appointments">
-                            <field name="appointment_ids" context="{'default_patient_id': active_id}">
+                            <field name="appointment_ids">
                                 <tree editable="bottom">
                                     <field name="reference" readonly="1"/>
                                     <field name="doctor_id"/>
@@ -132,6 +133,7 @@
         <field name="model">hospital.patient</field>
         <field name="arch" type="xml">
             <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="state"/>
                 <field name="reference"/>
                 <field name="name"/>
                 <field name="age"/>
@@ -155,7 +157,6 @@
         <field name="arch" type="xml">
             <graph string="Patients by Age Group" type="bar">
                 <field name="age_group" type="row"/>
-                <field name="id" type="measure"/>
             </graph>
         </field>
     </record>
@@ -167,7 +168,6 @@
             <pivot string="Patient Analysis">
                 <field name="doctor_id" type="row"/>
                 <field name="state" type="col"/>
-                <field name="id" type="measure"/>
             </pivot>
         </field>
     </record>
@@ -184,7 +184,15 @@
         <field name="name">Assign Doctor in Bulk</field>
         <field name="res_model">hospital.bulk.assign.doctor.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="view_bulk_assign_doctor_wizard_form"/>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_hospital_patient"/>
+        <field name="binding_type">action</field>
+    </record>
+
+    <record id="action_patient_status_wizard" model="ir.actions.act_window">
+        <field name="name">Update Patient Status</field>
+        <field name="res_model">hospital.patient.status.wizard</field>
+        <field name="view_mode">form</field>
         <field name="target">new</field>
         <field name="binding_model_id" ref="model_hospital_patient"/>
         <field name="binding_type">action</field>

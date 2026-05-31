@@ -2,21 +2,23 @@
 from odoo import fields, models
 
 
-class HospitalPatientExtension(models.Model):
-    """Extension inheritance: adds columns into hospital.patient table."""
-    _inherit = 'hospital.patient'
-
-    insurance_required = fields.Boolean(string='Insurance Required')
-    insurance_policy_no = fields.Char(string='Insurance Policy No.')
-    age_restricted = fields.Boolean(string='Age Restricted')
-
-
 class HospitalVipPatient(models.Model):
-    """Classical inheritance demo: new model reusing hospital.patient structure."""
+    """Classical inheritance demo: new model reusing hospital.patient structure.
+
+    In Odoo 13, inherited Many2many fields need their own relation table when _name + _inherit
+    creates a new model/table. Therefore tag_ids is redefined here.
+    """
     _name = 'hospital.vip.patient'
     _inherit = 'hospital.patient'
     _description = 'VIP Patient Demo Model'
 
+    tag_ids = fields.Many2many(
+        'hospital.patient.tag',
+        'hospital_vip_patient_tag_rel',
+        'vip_patient_id',
+        'tag_id',
+        string='Tags / Diseases'
+    )
     vip_level = fields.Selection([('silver', 'Silver'), ('gold', 'Gold'), ('platinum', 'Platinum')], default='silver')
     vip_notes = fields.Text()
 

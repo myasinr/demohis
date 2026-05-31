@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//om_hospital_training/models/appointment.py=utf-8
+encoding//om_hospital_training/models/department.py=utf-8
+encoding//om_hospital_training/models/doctor.py=utf-8
+encoding//om_hospital_training/models/inheritance_demo.py=utf-8
+encoding//om_hospital_training/models/patient.py=utf-8
+encoding//om_hospital_training/models/patient_tag.py=utf-8
+encoding//om_hospital_training/wizard/patient_status_wizard.py=utf-8

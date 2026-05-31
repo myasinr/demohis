@@ -1,33 +1,15 @@
 <odoo>
     <record id="rule_hospital_patient_company" model="ir.rule">
-        <field name="name">Hospital Patient Multi-Company Rule</field>
+        <field name="name">Hospital Patient Multi Company</field>
         <field name="model_id" ref="model_hospital_patient"/>
-        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', user.company_ids.ids)]</field>
         <field name="global" eval="True"/>
     </record>
 
     <record id="rule_hospital_appointment_company" model="ir.rule">
-        <field name="name">Hospital Appointment Multi-Company Rule</field>
+        <field name="name">Hospital Appointment Multi Company</field>
         <field name="model_id" ref="model_hospital_appointment"/>
-        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', user.company_ids.ids)]</field>
         <field name="global" eval="True"/>
-    </record>
-
-    <record id="rule_hospital_receptionist_own_appointments" model="ir.rule">
-        <field name="name">Receptionist Own Appointments</field>
-        <field name="model_id" ref="model_hospital_appointment"/>
-        <field name="groups" eval="[(4, ref('group_hospital_receptionist'))]"/>
-        <field name="domain_force">['|', ('create_uid', '=', user.id), ('patient_id.user_id', '=', user.id)]</field>
-        <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="False"/>
-    </record>
-
-    <record id="rule_hospital_manager_all_appointments" model="ir.rule">
-        <field name="name">Hospital Manager All Appointments</field>
-        <field name="model_id" ref="model_hospital_appointment"/>
-        <field name="groups" eval="[(4, ref('group_hospital_manager'))]"/>
-        <field name="domain_force">[(1, '=', 1)]</field>
     </record>
 </odoo>

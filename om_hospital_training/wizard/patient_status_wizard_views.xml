@@ -1,0 +1,18 @@
+<odoo>
+    <record id="view_patient_status_wizard_form" model="ir.ui.view">
+        <field name="name">hospital.patient.status.wizard.form</field>
+        <field name="model">hospital.patient.status.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Patient Status">
+                <group>
+                    <field name="state"/>
+                    <field name="note"/>
+                </group>
+                <footer>
+                    <button name="action_update_status" string="Update" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

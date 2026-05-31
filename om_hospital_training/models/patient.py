@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import date
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
@@ -15,17 +14,11 @@ class HospitalPatient(models.Model):
     name = fields.Char(required=True, tracking=True)
     date_of_birth = fields.Date(tracking=True)
     age = fields.Integer(compute='_compute_age', inverse='_inverse_age', store=True, tracking=True)
-    age_group = fields.Selection([
-        ('child', 'Child'),
-        ('adult', 'Adult'),
-        ('senior', 'Senior Citizen'),
-    ], compute='_compute_age_group', store=True)
     estimated_birth_year = fields.Integer(string='Estimated Birth Year')
-    gender = fields.Selection([
-        ('male', 'Male'),
-        ('female', 'Female'),
-        ('other', 'Other'),
-    ], tracking=True)
+    age_group = fields.Selection([
+        ('child', 'Child'), ('adult', 'Adult'), ('senior', 'Senior Citizen')
+    ], compute='_compute_age_group', store=True)
+    gender = fields.Selection([('male', 'Male'), ('female', 'Female'), ('other', 'Other')], tracking=True)
     blood_group = fields.Selection([
         ('a+', 'A+'), ('a-', 'A-'), ('b+', 'B+'), ('b-', 'B-'),
         ('ab+', 'AB+'), ('ab-', 'AB-'), ('o+', 'O+'), ('o-', 'O-'),
@@ -48,12 +41,12 @@ class HospitalPatient(models.Model):
     total_prescription_qty = fields.Float(compute='_compute_total_prescription_qty', store=True)
     tag_ids = fields.Many2many('hospital.patient.tag', 'hospital_patient_tag_rel', 'patient_id', 'tag_id', string='Tags / Diseases')
     last_appointment_date = fields.Date(compute='_compute_last_appointment_date')
+    insurance_required = fields.Boolean(string='Insurance Required')
+    insurance_policy_no = fields.Char(string='Insurance Policy No.')
+    age_restricted = fields.Boolean(string='Age Restricted')
     state = fields.Selection([
-        ('draft', 'Draft'),
-        ('registered', 'Registered'),
-        ('admitted', 'Admitted'),
-        ('discharged', 'Discharged'),
-        ('cancelled', 'Cancelled'),
+        ('draft', 'Draft'), ('registered', 'Registered'), ('admitted', 'Admitted'),
+        ('discharged', 'Discharged'), ('cancelled', 'Cancelled')
     ], default='draft', tracking=True)
 
     _sql_constraints = [
@@ -70,7 +63,7 @@ class HospitalPatient(models.Model):
         return rec
 
     def write(self, vals):
-        if 'state' in vals and vals['state'] == 'cancelled':
+        if vals.get('state') == 'cancelled':
             for rec in self:
                 if rec.state == 'discharged':
                     raise ValidationError(_('Discharged patient cannot be cancelled.'))
@@ -84,25 +77,21 @@ class HospitalPatient(models.Model):
 
     @api.depends('date_of_birth', 'estimated_birth_year')
     def _compute_age(self):
-        today_value = fields.Date.context_today(self)
-        today_date = fields.Date.from_string(today_value) if isinstance(today_value, str) else today_value
-        today_year = today_date.year
+        today = fields.Date.from_string(fields.Date.context_today(self))
         for rec in self:
             if rec.date_of_birth:
-                dob = fields.Date.from_string(rec.date_of_birth) if isinstance(rec.date_of_birth, str) else rec.date_of_birth
-                rec.age = today_year - dob.year - ((today_date.month, today_date.day) < (dob.month, dob.day))
+                dob = fields.Date.from_string(rec.date_of_birth)
+                rec.age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
             elif rec.estimated_birth_year:
-                rec.age = today_year - rec.estimated_birth_year
+                rec.age = today.year - rec.estimated_birth_year
             else:
                 rec.age = 0
 
     def _inverse_age(self):
-        today_value = fields.Date.context_today(self)
-        today_date = fields.Date.from_string(today_value) if isinstance(today_value, str) else today_value
-        current_year = today_date.year
+        today = fields.Date.from_string(fields.Date.context_today(self))
         for rec in self:
             if rec.age and not rec.date_of_birth:
-                rec.estimated_birth_year = current_year - rec.age
+                rec.estimated_birth_year = today.year - rec.age
 
     @api.depends('age')
     def _compute_is_child(self):
@@ -119,20 +108,21 @@ class HospitalPatient(models.Model):
             else:
                 rec.age_group = 'adult'
 
-    @api.depends('appointment_ids.state')
+    @api.depends('appointment_ids')
     def _compute_appointment_count(self):
-        data = self.env['hospital.appointment'].read_group(
+        grouped = self.env['hospital.appointment'].read_group(
             [('patient_id', 'in', self.ids)], ['patient_id'], ['patient_id']
         )
-        mapped = {row['patient_id'][0]: row['patient_id_count'] for row in data if row.get('patient_id')}
+        counts = {row['patient_id'][0]: row['patient_id_count'] for row in grouped if row.get('patient_id')}
         for rec in self:
-            rec.appointment_count = mapped.get(rec.id, 0)
+            rec.appointment_count = counts.get(rec.id, 0)
 
     @api.depends('appointment_ids.line_ids.quantity')
     def _compute_total_prescription_qty(self):
         for rec in self:
             rec.total_prescription_qty = sum(rec.appointment_ids.mapped('line_ids.quantity'))
 
+    @api.depends('appointment_ids.appointment_date')
     def _compute_last_appointment_date(self):
         for rec in self:
             dates = rec.appointment_ids.mapped('appointment_date')
@@ -142,12 +132,7 @@ class HospitalPatient(models.Model):
     def _onchange_child_warning(self):
         if self.age and self.age < 18:
             self.is_child = True
-            return {
-                'warning': {
-                    'title': _('Child Patient Policy'),
-                    'message': _('Guardian name is recommended for child patients.'),
-                }
-            }
+            return {'warning': {'title': _('Child Patient Policy'), 'message': _('Guardian name is recommended for child patients.')}}
         self.is_child = False
 
     @api.onchange('doctor_id')
@@ -169,11 +154,14 @@ class HospitalPatient(models.Model):
             if rec.is_child and not rec.guardian_name:
                 raise ValidationError(_('Guardian name is required for child patients.'))
 
-    def name_get(self):
-        result = []
+    @api.constrains('insurance_required', 'insurance_policy_no')
+    def _check_insurance_policy(self):
         for rec in self:
-            result.append((rec.id, '[%s] %s' % (rec.reference or 'New', rec.name or '')))
-        return result
+            if rec.insurance_required and not rec.insurance_policy_no:
+                raise ValidationError(_('Insurance policy number is required.'))
+
+    def name_get(self):
+        return [(rec.id, '[%s] %s' % (rec.reference or 'New', rec.name or '')) for rec in self]
 
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
@@ -181,8 +169,7 @@ class HospitalPatient(models.Model):
         domain = []
         if name:
             domain = ['|', '|', ('name', operator, name), ('reference', operator, name), ('mobile', operator, name)]
-        records = self.search(domain + args, limit=limit)
-        return records.name_get()
+        return self.search(domain + args, limit=limit).name_get()
 
     @api.model
     def name_create(self, name):
@@ -208,11 +195,10 @@ class HospitalPatient(models.Model):
         self.ensure_one()
         action = self.env.ref('om_hospital_training.action_hospital_appointment').read()[0]
         action['domain'] = [('patient_id', '=', self.id)]
-        action['context'] = {'default_patient_id': self.id, 'search_default_patient_id': self.id}
+        action['context'] = {'default_patient_id': self.id}
         return action
 
     def action_demo_orm_pipeline(self):
-        """Small demo for students: search -> filtered -> mapped -> sorted."""
         appointments = self.env['hospital.appointment'].search([('patient_id', 'in', self.ids)])
         done_patient_names = appointments.filtered(lambda r: r.state == 'done').mapped('patient_id.name')
         newest = appointments.sorted(key=lambda r: r.create_date or fields.Datetime.now(), reverse=True)
