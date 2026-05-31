@@ -1,0 +1,420 @@
+# Hospital Management System
+
+## Business Requirement Document (BRD)
+
+### Odoo Development Workshop Training Project
+
+---
+
+# 1. Introduction
+
+## 1.1 Purpose
+
+The purpose of this project is to develop a Hospital Management System using Odoo 13 that demonstrates all major Odoo development concepts covered during the Odoo Technical Development Workshop.
+
+This project is not intended to be a complete hospital ERP. Instead, it serves as a practical learning project through which students will implement and understand Odoo development concepts such as:
+
+* Models
+* Fields
+* Relationships
+* Views
+* Security
+* Inheritance
+* ORM
+* Wizards
+* Reports
+* Dashboards
+* APIs
+* Chatter
+* Webhooks
+
+---
+
+# 2. Business Problem
+
+Hospitals manage:
+
+* Doctors
+* Patients
+* Appointments
+* Diseases
+* Medicines
+* Prescriptions
+
+Most small hospitals manage this information manually using spreadsheets or paper files.
+
+Management wants a centralized system to:
+
+* Maintain patient records
+* Maintain doctor records
+* Schedule appointments
+* Record prescriptions
+* Track patient history
+* Generate reports
+
+---
+
+# 3. Project Scope
+
+The system shall provide the following modules:
+
+## Master Data
+
+* Departments
+* Doctors
+* Patients
+* Disease Tags
+* Medicines
+
+## Transactions
+
+* Appointments
+* Prescriptions
+
+## Reporting
+
+* Patient Reports
+* Doctor Reports
+* Appointment Reports
+
+## Analytics
+
+* Graph Views
+* Pivot Views
+* Dashboards
+
+## Administration
+
+* User Roles
+* Security
+* Audit Trails
+
+---
+
+# 4. User Roles
+
+## Receptionist
+
+Responsibilities:
+
+* Register Patients
+* Schedule Appointments
+* View Doctors
+* Print Appointment Slips
+
+Cannot:
+
+* Delete Records
+* Modify Prescriptions
+
+---
+
+## Doctor
+
+Responsibilities:
+
+* View Patients
+* View Appointments
+* Create Prescriptions
+* Update Medical Notes
+
+Cannot:
+
+* Delete Patients
+
+---
+
+## Hospital Manager
+
+Responsibilities:
+
+* Full System Access
+* Reports
+* Analytics
+* Dashboard Monitoring
+
+---
+
+# 5. Functional Requirements
+
+# FR-01 Department Management
+
+The system shall maintain hospital departments.
+
+Examples:
+
+* Cardiology
+* Orthopedics
+* ENT
+* Internal Medicine
+* Gastroenterology
+
+Fields:
+
+* Name
+* Description
+
+---
+
+# FR-02 Doctor Management
+
+The system shall maintain doctor profiles.
+
+Fields:
+
+* Doctor Code
+* Name
+* Email
+* Mobile
+* Department
+* Specialization
+* Active
+
+Sample Records:
+
+* Dr. Ahmad Badar
+* Dr. Fahmina Ashfaq
+* Dr. Umair Khurshid
+
+---
+
+# FR-03 Disease Tag Management
+
+The system shall maintain disease categories.
+
+Examples:
+
+* Diabetes
+* Hypertension
+* Asthma
+* Heart Disease
+* Hepatitis
+
+Fields:
+
+* Name
+* Color
+
+Purpose:
+
+Used for patient categorization.
+
+---
+
+# FR-04 Medicine Management
+
+The system shall maintain medicines.
+
+Fields:
+
+* Code
+* Name
+* Price
+
+Examples:
+
+* Paracetamol
+* Augmentin
+* Metformin
+* Losartan
+
+---
+
+# FR-05 Patient Registration
+
+The system shall allow registration of patients.
+
+Fields:
+
+* Patient Reference
+* Name
+* Gender
+* Date of Birth
+* Mobile
+* Email
+* Blood Group
+* Guardian Name
+* Assigned Doctor
+* Disease Tags
+
+---
+
+# FR-06 Automatic Patient Number
+
+The system shall automatically generate patient references.
+
+Example:
+
+PAT00001
+
+PAT00002
+
+PAT00003
+
+Implementation:
+
+* Sequence
+* create() Override
+
+---
+
+# FR-07 Appointment Management
+
+The system shall allow scheduling appointments.
+
+Fields:
+
+* Appointment Number
+* Patient
+* Doctor
+* Date
+* Time
+* Status
+
+Statuses:
+
+* Draft
+* Confirmed
+* Completed
+* Cancelled
+
+---
+
+# FR-08 Prescription Management
+
+The system shall allow doctors to prescribe medicines.
+
+Fields:
+
+* Prescription Number
+* Patient
+* Doctor
+* Date
+
+Lines:
+
+* Medicine
+* Quantity
+* Unit Price
+
+Relationship:
+
+Prescription → One2many → Prescription Lines
+
+---
+
+# FR-09 Patient Medical History
+
+The system shall maintain historical records.
+
+Users should be able to view:
+
+* Appointments
+* Prescriptions
+* Disease Tags
+
+for a patient.
+
+---
+
+# FR-10 Dashboard
+
+Management shall view:
+
+* Total Patients
+* Total Doctors
+* Total Appointments
+* Completed Appointments
+
+through Graph and Pivot Views.
+
+---
+
+# 6. Non-Functional Requirements
+
+## Security
+
+Receptionists shall not delete patients.
+
+Doctors shall only manage medical records.
+
+Managers shall have complete access.
+
+---
+
+## Auditability
+
+Patient changes shall be tracked using:
+
+* mail.thread
+* tracking=True
+
+---
+
+## Performance
+
+The system shall support:
+
+* 10 Doctors
+* 25 Patients
+* 50 Medicines
+* 1000 Appointments
+
+without performance issues.
+
+---
+
+# 7. Odoo Concepts Covered
+
+| Requirement    | Odoo Concept       |
+| -------------- | ------------------ |
+| Departments    | Simple Model       |
+| Doctors        | Many2one           |
+| Disease Tags   | Many2many          |
+| Medicines      | Master Data        |
+| Patients       | Computed Fields    |
+| Appointments   | Workflow States    |
+| Prescriptions  | One2many           |
+| Patient Number | Sequence           |
+| Security       | ACL + Record Rules |
+| Dashboard      | Graph + Pivot      |
+| Reports        | QWeb               |
+| Chatter        | mail.thread        |
+| Bulk Assign    | Wizard             |
+| APIs           | Controller         |
+| Analytics      | ORM read_group     |
+
+---
+
+# 8. Demo Dataset
+
+The training database shall include:
+
+* 8 Departments
+* 10 Doctors
+* 25 Patients
+* 15 Disease Tags
+* 50 Medicines
+* 50 Appointments
+* 25 Prescriptions
+
+to demonstrate all workshop features.
+
+---
+
+# 9. Expected Learning Outcome
+
+After completing this project, students shall be able to:
+
+1. Gather requirements.
+2. Design database models.
+3. Create Odoo modules.
+4. Develop views.
+5. Configure security.
+6. Implement business logic.
+7. Generate reports.
+8. Build dashboards.
+9. Create APIs.
+10. Deploy Odoo applications.
+
+The student should understand how a real-world business requirement is transformed into a working Odoo module.
